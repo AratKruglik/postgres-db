@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-davinci
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: davinci_projects
+      POSTGRES_USER: davinci_user
+      POSTGRES_PASSWORD: your_secure_password_here
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=uk_UA.UTF-8"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "127.0.0.1:5432:5432"  # Доступний тільки локально
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./conf/pg_hba.conf:/usr/share/postgresql/15/pg_hba.conf:ro
+      - ./scripts/init-scripts:/docker-entrypoint-initdb.d
+    command: >
+      postgres
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c hba_file=/usr/share/postgresql/15/pg_hba.conf
+    networks:
+      - postgres_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U davinci_user -d davinci_projects"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  postgres_network:
+    driver: bridge
