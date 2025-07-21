@@ -36,10 +36,9 @@ services:
     container_name: postgres-stream-proxy
     restart: unless-stopped
     ports:
-      - "5433:5433"  # Публічний порт для PostgreSQL
+      - "5433:5433"
     volumes:
       - ./conf/nginx-stream.conf:/etc/nginx/nginx.conf:ro
-      - /path/to/ssl/certs:/etc/ssl/certs:ro  # SSL сертифікати з NPM
     depends_on:
       - postgres
 
